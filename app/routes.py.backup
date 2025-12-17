@@ -1,0 +1,103 @@
+from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
+from app.blockchain import BlockchainManager
+from app.utils import valider_adresse_ethereum, calculer_mention
+
+main = Blueprint('main', __name__)
+blockchain = BlockchainManager()
+
+@main.route('/')
+def index():
+    try:
+        stats = blockchain.get_statistics()
+        return render_template('index.html', stats=stats)
+    except Exception as e:
+        return render_template('index.html', error=str(e))
+
+@main.route('/liste')
+def liste_etudiants():
+    try:
+        students = blockchain.get_all_students()
+        for student in students:
+            student['mention'] = calculer_mention(student['moyenneGenerale'])
+        return render_template('liste.html', students=students)
+    except Exception as e:
+        return render_template('liste.html', error=str(e))
+
+@main.route('/ajouter', methods=['GET', 'POST'])
+def ajouter_etudiant():
+    if request.method == 'POST':
+        try:
+            data = request.form
+            if not valider_adresse_ethereum(data['adresse']):
+                flash('Adresse Ethereum invalide', 'danger')
+                return redirect(url_for('main.ajouter_etudiant'))
+            
+            receipt = blockchain.add_student(
+                data['adresse'],
+                data['nom'],
+                data['prenom'],
+                data['dateNaissance'],
+                data['moyenne']
+            )
+            flash(f'Étudiant ajouté! TX: {receipt.transactionHash.hex()}', 'success')
+            return redirect(url_for('main.liste_etudiants'))
+        except Exception as e:
+            flash(f'Erreur: {str(e)}', 'danger')
+            return redirect(url_for('main.ajouter_etudiant'))
+    return render_template('ajouter.html')
+
+@main.route('/etudiant/<address>')
+def details_etudiant(address):
+    try:
+        student = blockchain.get_student(address)
+        if not student:
+            flash('Étudiant non trouvé', 'warning')
+            return redirect(url_for('main.liste_etudiants'))
+        student['mention'] = calculer_mention(student['moyenneGenerale'])
+        return render_template('details.html', student=student)
+    except Exception as e:
+        flash(f'Erreur: {str(e)}', 'danger')
+        return redirect(url_for('main.liste_etudiants'))
+
+@main.route('/statistiques')
+def statistiques():
+    try:
+        stats = blockchain.get_statistics()
+        students = blockchain.get_all_students()
+
+        # ON GARANTIT QUE 'mentions' EXISTE TOUJOURS
+        if 'mentions' not in stats or stats['mentions'] is None:
+            stats['mentions'] = {
+                'Passable': 0,
+                'AssezBien': 0,
+                'Bien': 0,
+                'TresBien': 0,
+                'Excellent': 0
+            }
+
+        return render_template('statistiques.html', stats=stats, students=students, error=None)
+
+    except Exception as e:
+        # Stats vides mais avec la structure complète
+        empty_stats = {
+            'total': 0,
+            'moyenne_generale': 0.0,
+            'reussis': 0,
+            'excellents': 0,
+            'mentions': {
+                'Passable': 0,
+                'AssezBien': 0,
+                'Bien': 0,
+                'TresBien': 0,
+                'Excellent': 0
+            }
+        }
+        return render_template('statistiques.html', stats=empty_stats, error=str(e))
+
+# API
+@main.route('/api/students')
+def api_students():
+    try:
+        return jsonify(blockchain.get_all_students())
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

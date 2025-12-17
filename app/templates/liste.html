@@ -1,0 +1,360 @@
+﻿{% extends "base.html" %}
+{% block title %}Liste des Diplômes{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-list"></i> Liste des Diplômes NFT
+                </h4>
+                <span class="badge bg-light text-dark">
+                    Total: <span id="totalCount">{{ etudiants|length }}</span> diplôme(s)
+                </span>
+            </div>
+            <div class="card-body">
+                
+                {% if etudiants|length == 0 %}
+                    <!-- Message si vide -->
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucun diplôme NFT créé pour le moment</h5>
+                        <p class="text-muted">Commencez par ajouter un nouveau diplôme</p>
+                        <a href="/ajouter" class="btn btn-primary mt-3">
+                            <i class="fas fa-plus-circle"></i> Créer un Diplôme NFT
+                        </a>
+                    </div>
+                {% else %}
+                    <!-- Tableau des diplômes -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="20%">Étudiant</th>
+                                    <th width="15%">Diplôme</th>
+                                    <th width="15%">Institution</th>
+                                    <th width="10%">Token ID</th>
+                                    <th width="15%">Date</th>
+                                    <th width="20%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for etudiant in etudiants %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>
+                                        <strong>{{ etudiant.nom }} {{ etudiant.prenom }}</strong><br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-envelope"></i> {{ etudiant.email }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ etudiant.diplome }}</span><br>
+                                        <small class="text-muted">{{ etudiant.specialite }}</small>
+                                    </td>
+                                    <td>{{ etudiant.institution }}</td>
+                                    <td>
+                                        <span class="badge bg-success">
+                                            #{{ etudiant.nft_token_id }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small>{{ etudiant.date_ajout }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <!-- Voir sur IPFS -->
+                                            <a href="{{ etudiant.ipfs_url }}" target="_blank" 
+                                               class="btn btn-outline-info" title="Voir le diplôme sur IPFS">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                            
+                                            <!-- Voir sur PolygonScan -->
+                                            <a href="https://amoy.polygonscan.com/tx/{{ etudiant.tx_hash }}" 
+                                               target="_blank" class="btn btn-outline-primary" 
+                                               title="Voir la transaction">
+                                                <i class="fas fa-link"></i>
+                                            </a>
+                                            
+                                            <!-- Voir les métadonnées -->
+                                            <button class="btn btn-outline-secondary" 
+                                                    onclick="showMetadata('{{ etudiant.metadata_url }}')" 
+                                                    title="Voir les métadonnées NFT">
+                                                <i class="fas fa-info-circle"></i>
+                                            </button>
+                                            
+                                            <!-- Détails complets -->
+                                            <button class="btn btn-outline-success" 
+                                                    onclick="showDetails({{ loop.index0 }})" 
+                                                    title="Détails complets">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+                
+            </div>
+        </div>
+        
+        <!-- Carte Statistiques -->
+        {% if etudiants|length > 0 %}
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="card text-center bg-primary text-white">
+                    <div class="card-body">
+                        <h3>{{ etudiants|length }}</h3>
+                        <p class="mb-0">Diplômes NFT</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center bg-success text-white">
+                    <div class="card-body">
+                        <h3>{{ etudiants|selectattr('diplome', 'equalto', 'Master')|list|length }}</h3>
+                        <p class="mb-0">Masters</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center bg-info text-white">
+                    <div class="card-body">
+                        <h3>{{ etudiants|selectattr('diplome', 'equalto', 'Licence')|list|length }}</h3>
+                        <p class="mb-0">Licences</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center bg-warning text-white">
+                    <div class="card-body">
+                        <h3>100%</h3>
+                        <p class="mb-0">Blockchain</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal Détails -->
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-info-circle"></i> Détails du Diplôme NFT</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Contenu dynamique -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Données JSON pour JavaScript -->
+<script>
+    const etudiantsData = {{ etudiants|tojson|safe }};
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Afficher les métadonnées NFT
+    async function showMetadata(metadataUrl) {
+        try {
+            const response = await fetch(metadataUrl);
+            const metadata = await response.json();
+            
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <h6 class="text-primary"><i class="fas fa-cube"></i> Métadonnées NFT</h6>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th width="30%">Nom</th>
+                            <td>${metadata.name}</td>
+                        </tr>
+                        <tr>
+                            <th>Description</th>
+                            <td>${metadata.description}</td>
+                        </tr>
+                        <tr>
+                            <th>URL IPFS</th>
+                            <td>
+                                <a href="${metadata.image}" target="_blank">
+                                    ${metadata.image} <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <h6 class="text-primary mt-3"><i class="fas fa-tags"></i> Attributs</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Trait</th>
+                                <th>Valeur</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${metadata.attributes.map(attr => `
+                                <tr>
+                                    <td><strong>${attr.trait_type}</strong></td>
+                                    <td>${attr.value}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle"></i> 
+                    Ces métadonnées sont stockées de manière permanente sur IPFS.
+                </div>
+            `;
+            
+            const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+            modal.show();
+            
+        } catch (error) {
+            alert('Erreur lors du chargement des métadonnées: ' + error.message);
+        }
+    }
+    
+    // Afficher les détails complets
+    function showDetails(index) {
+        const etudiant = etudiantsData[index];
+        
+        const modalBody = document.getElementById('modalBody');
+        modalBody.innerHTML = `
+            <!-- Informations Étudiant -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-user"></i> Informations de l'Étudiant</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Nom complet:</strong><br>${etudiant.nom} ${etudiant.prenom}</p>
+                            <p><strong>Email:</strong><br>${etudiant.email}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Wallet Ethereum:</strong><br>
+                                <code>${etudiant.wallet_address}</code>
+                                <a href="https://amoy.polygonscan.com/address/${etudiant.wallet_address}" 
+                                   target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Informations Diplôme -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-certificate"></i> Informations du Diplôme</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Type:</strong><br>
+                                <span class="badge bg-primary">${etudiant.diplome}</span>
+                            </p>
+                            <p><strong>Spécialité:</strong><br>${etudiant.specialite}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Institution:</strong><br>${etudiant.institution}</p>
+                            <p><strong>Date d'émission:</strong><br>${etudiant.date_ajout}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Informations Blockchain -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-cube"></i> Informations Blockchain</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Token ID NFT:</strong><br>
+                        <span class="badge bg-success">#${etudiant.nft_token_id}</span>
+                    </p>
+                    <p><strong>Transaction Hash:</strong><br>
+                        <code>${etudiant.tx_hash}</code>
+                        <a href="https://amoy.polygonscan.com/tx/${etudiant.tx_hash}" 
+                           target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                            Voir sur PolygonScan <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </p>
+                    <p><strong>URL IPFS (Diplôme):</strong><br>
+                        <a href="${etudiant.ipfs_url}" target="_blank">
+                            ${etudiant.ipfs_url} <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </p>
+                    <p><strong>URL Métadonnées:</strong><br>
+                        <a href="${etudiant.metadata_url}" target="_blank">
+                            ${etudiant.metadata_url} <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="d-grid gap-2">
+                <a href="${etudiant.ipfs_url}" target="_blank" class="btn btn-primary">
+                    <i class="fas fa-file-pdf"></i> Télécharger le Diplôme PDF
+                </a>
+                <button class="btn btn-secondary" onclick="addToMetaMask(${etudiant.nft_token_id})">
+                    <i class="fab fa-ethereum"></i> Ajouter à MetaMask
+                </button>
+            </div>
+        `;
+        
+        const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+        modal.show();
+    }
+    
+    // Ajouter le NFT à MetaMask
+    async function addToMetaMask(tokenId) {
+        if (typeof window.ethereum === 'undefined') {
+            alert('MetaMask n\'est pas installé');
+            return;
+        }
+        
+        try {
+            // Obtenir l'adresse du contrat depuis l'API
+            const response = await fetch('/api/contract-info');
+            const data = await response.json();
+            
+            if (data.success) {
+                await window.ethereum.request({
+                    method: 'wallet_watchAsset',
+                    params: {
+                        type: 'ERC721',
+                        options: {
+                            address: data.contract_address,
+                            tokenId: tokenId.toString(),
+                        },
+                    },
+                });
+                
+                alert('NFT ajouté à MetaMask avec succès!');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de l\'ajout à MetaMask: ' + error.message);
+        }
+    }
+</script>
+{% endblock %}

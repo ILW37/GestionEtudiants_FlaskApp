@@ -1,0 +1,223 @@
+﻿{% extends "base.html" %}
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 text-center mb-5">
+        <h1 class="text-white display-4 mb-3">
+            <i class="fas fa-graduation-cap"></i> 
+            Système de Gestion de Diplômes NFT
+        </h1>
+        <p class="text-white lead">
+            Émettez, gérez et vérifiez des diplômes sous forme de NFT sur la blockchain Polygon
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Carte Ajouter un Diplôme -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <i class="fas fa-plus-circle fa-4x text-primary"></i>
+                </div>
+                <h3 class="card-title">Créer un NFT</h3>
+                <p class="card-text text-muted">
+                    Ajoutez un nouveau diplôme et créez automatiquement un NFT sur la blockchain
+                </p>
+                <a href="/ajouter" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus"></i> Ajouter un Diplôme
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carte Liste des Diplômes -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <i class="fas fa-list fa-4x text-success"></i>
+                </div>
+                <h3 class="card-title">Consulter les NFTs</h3>
+                <p class="card-text text-muted">
+                    Visualisez tous les diplômes NFT émis avec leurs informations blockchain
+                </p>
+                <a href="/liste" class="btn btn-success mt-3">
+                    <i class="fas fa-list"></i> Voir la Liste
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carte Informations Blockchain -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <i class="fas fa-cube fa-4x text-info"></i>
+                </div>
+                <h3 class="card-title">Smart Contract</h3>
+                <p class="card-text text-muted">
+                    Informations sur le contrat intelligent déployé sur Polygon Amoy
+                </p>
+                <button class="btn btn-info mt-3" onclick="showContractInfo()">
+                    <i class="fas fa-info-circle"></i> Détails du Contrat
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-info-circle"></i> Comment ça marche ?</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-file-upload fa-3x text-primary mb-3"></i>
+                            <h5>1. Upload PDF</h5>
+                            <p class="text-muted">Téléchargez le diplôme en format PDF</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-cloud fa-3x text-info mb-3"></i>
+                            <h5>2. Stockage IPFS</h5>
+                            <p class="text-muted">Le fichier est stocké sur IPFS via Pinata</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-link fa-3x text-success mb-3"></i>
+                            <h5>3. Création NFT</h5>
+                            <p class="text-muted">Un NFT unique est créé sur la blockchain</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-paper-plane fa-3x text-warning mb-3"></i>
+                            <h5>4. Envoi Wallet</h5>
+                            <p class="text-muted">Le NFT est envoyé au wallet de l'étudiant</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5><i class="fas fa-shield-alt text-success"></i> Avantages de la Blockchain</h5>
+                <ul class="mb-0">
+                    <li>✅ <strong>Immuable</strong> : Les diplômes ne peuvent pas être falsifiés</li>
+                    <li>✅ <strong>Vérifiable</strong> : Vérification instantanée de l'authenticité</li>
+                    <li>✅ <strong>Décentralisé</strong> : Stockage sécurisé sur IPFS</li>
+                    <li>✅ <strong>Transparent</strong> : Toutes les transactions sont publiques</li>
+                    <li>✅ <strong>Propriété</strong> : L'étudiant possède réellement son diplôme NFT</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Info Contrat -->
+<div class="modal fade" id="contractModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-cube"></i> Informations Smart Contract</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="contractInfo">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Chargement...</span>
+                        </div>
+                        <p class="mt-2">Chargement des informations...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function showContractInfo() {
+        const modal = new bootstrap.Modal(document.getElementById('contractModal'));
+        modal.show();
+        
+        try {
+            const response = await fetch('/api/contract-info');
+            const data = await response.json();
+            
+            if (data.success) {
+                const contractInfoDiv = document.getElementById('contractInfo');
+                contractInfoDiv.innerHTML = `
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th width="30%">Adresse du Contrat</th>
+                                <td>
+                                    <code>${data.contract_address}</code>
+                                    <a href="https://amoy.polygonscan.com/address/${data.contract_address}" 
+                                       target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                        <i class="fas fa-external-link-alt"></i> Voir sur PolygonScan
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Réseau</th>
+                                <td>Polygon Amoy Testnet (Chain ID: 80002)</td>
+                            </tr>
+                            <tr>
+                                <th>Total de NFTs Émis</th>
+                                <td><span class="badge bg-success">${data.total_supply}</span></td>
+                            </tr>
+                            <tr>
+                                <th>Type de Token</th>
+                                <td>ERC-721 (NFT)</td>
+                            </tr>
+                            <tr>
+                                <th>Nom du Token</th>
+                                <td>DiplomaToken (DIPLOMA)</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>Note :</strong> Chaque diplôme est un NFT unique et non-fongible stocké sur la blockchain Polygon.
+                    </div>
+                `;
+            } else {
+                document.getElementById('contractInfo').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        Erreur lors du chargement des informations du contrat.
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            document.getElementById('contractInfo').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    Erreur de connexion : ${error.message}
+                </div>
+            `;
+        }
+    }
+</script>
+{% endblock %}

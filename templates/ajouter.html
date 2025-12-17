@@ -1,0 +1,40 @@
+﻿{% extends "base.html" %}
+{% block title %}Ajouter un étudiant{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-primary text-white text-center py-4">
+                <h2 class="mb-0"><i class="fas fa-user-plus fa-lg me-3"></i>Ajouter un étudiant</h2>
+            </div>
+            <div class="card-body p-5">
+                <form method="POST">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Nom</label>
+                        <input type="text" name="nom" class="form-control form-control-lg" required autofocus>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Prénom</label>
+                        <input type="text" name="prenom" class="form-control form-control-lg" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Date de naissance <small class="text-muted">(YYYY-MM-DD)</small></label>
+                        <input type="text" name="dateNaissance" placeholder="2000-05-15" class="form-control form-control-lg" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Moyenne générale <small class="text-muted">/20</small></label>
+                        <input type="number" step="0.01" min="0" max="20" name="moyenne" class="form-control form-control-lg" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Adresse Ethereum</label>
+                        <input type="text" name="adresse" placeholder="0x..." class="form-control form-control-lg font-monospace" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">
+                        <i class="fas fa-check me-2"></i>Ajouter l'étudiant
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

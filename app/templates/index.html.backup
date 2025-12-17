@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Accueil - Tableau de Bord{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="bi bi-house"></i> Tableau de Bord</h4>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                    <div class="alert alert-danger">
+                        <strong>Erreur :</strong> {{ error }}
+                    </div>
+                {% else %}
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white mb-3">
+                                <div class="card-body">
+                                    <i class="bi bi-people fs-1"></i>
+                                    <h5 class="mt-2">{{ stats.total }}</h5>
+                                    <p>Étudiants inscrits</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white mb-3">
+                                <div class="card-body">
+                                    <i class="bi bi-calculator fs-1"></i>
+                                    <h5 class="mt-2">{{ "%.1f"|format(stats.moyenne_classe|default(0)) }}</h5>
+                                    <p>Moyenne générale</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white mb-3">
+                                <div class="card-body">
+                                    <i class="bi bi-check-circle fs-1"></i>
+                                    <h5 class="mt-2">{{ stats.reussis }}</h5>
+                                    <p>Réussis (≥10)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-danger text-white mb-3">
+                                <div class="card-body">
+                                    <i class="bi bi-star-fill fs-1"></i>
+                                    <h5 class="mt-2">{{ stats.excellents }}</h5>
+                                    <p>Excellents (≥16)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-plus-circle text-primary" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">Ajouter un étudiant</h5>
+                <p class="text-muted">Enregistrer un nouvel étudiant dans le système</p>
+                <a href="/ajouter" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Ajouter
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-list-ul text-info" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">Consulter la liste</h5>
+                <p class="text-muted">Voir tous les étudiants enregistrés</p>
+                <a href="/liste" class="btn btn-info">
+                    <i class="bi bi-list-ul"></i> Liste
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-bar-chart text-success" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">Statistiques</h5>
+                <p class="text-muted">Analyser les performances de la classe</p>
+                <a href="/statistiques" class="btn btn-success">
+                    <i class="bi bi-bar-chart"></i> Statistiques
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer info -->
+<div class="row mt-4">
+    <div class="col-md-12 text-center">
+        <div class="alert alert-light">
+            <i class="bi bi-info-circle"></i>
+            <strong>Système de stockage:</strong> Données sauvegardées localement
+            {% if config.CONTRACT_ADDRESS != "0x0000000000000000000000000000000000000000" %}
+                <br><small>Contrat Blockchain: <code>{{ config.CONTRACT_ADDRESS }}</code></small>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

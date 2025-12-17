@@ -1,0 +1,305 @@
+﻿{% extends "base.html" %}
+{% block title %}Ajouter un Diplôme{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-plus-circle"></i> Créer un Nouveau Diplôme NFT
+                </h4>
+            </div>
+            <div class="card-body">
+                
+                <!-- Alert Zone -->
+                <div id="alertZone"></div>
+                
+                <form id="diplomaForm" enctype="multipart/form-data">
+                    
+                    <!-- Section Informations Étudiant -->
+                    <h5 class="mb-3 text-primary">
+                        <i class="fas fa-user"></i> Informations de l'Étudiant
+                    </h5>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="nom" class="form-label">Nom <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nom" name="nom" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="prenom" class="form-label">Prénom <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="prenom" name="prenom" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="form-text">L'email de contact de l'étudiant</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="wallet_address" class="form-label">
+                            Adresse Wallet Ethereum <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fab fa-ethereum"></i></span>
+                            <input type="text" class="form-control" id="wallet_address" name="wallet_address" 
+                                   placeholder="0x..." required pattern="^0x[a-fA-F0-9]{40}$">
+                            <button class="btn btn-outline-secondary" type="button" onclick="useConnectedWallet()">
+                                <i class="fas fa-wallet"></i> Utiliser MetaMask
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            L'adresse où le NFT sera envoyé (commence par 0x)
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Section Informations Diplôme -->
+                    <h5 class="mb-3 text-primary">
+                        <i class="fas fa-certificate"></i> Informations du Diplôme
+                    </h5>
+                    
+                    <div class="mb-3">
+                        <label for="diplome" class="form-label">Type de Diplôme <span class="text-danger">*</span></label>
+                        <select class="form-select" id="diplome" name="diplome" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="Licence">Licence</option>
+                            <option value="Master">Master</option>
+                            <option value="Doctorat">Doctorat</option>
+                            <option value="DUT">DUT</option>
+                            <option value="BTS">BTS</option>
+                            <option value="Ingénieur">Ingénieur</option>
+                            <option value="MBA">MBA</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="specialite" class="form-label">Spécialité <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="specialite" name="specialite" 
+                               placeholder="Ex: Informatique, Génie Civil..." required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="institution" class="form-label">Institution <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="institution" name="institution" 
+                               value="Université" required>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Section Upload PDF -->
+                    <h5 class="mb-3 text-primary">
+                        <i class="fas fa-file-pdf"></i> Document Diplôme
+                    </h5>
+                    
+                    <div class="mb-4">
+                        <label for="diplome_pdf" class="form-label">
+                            Fichier PDF du Diplôme <span class="text-danger">*</span>
+                        </label>
+                        <input type="file" class="form-control" id="diplome_pdf" name="diplome_pdf" 
+                               accept=".pdf" required>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle"></i> 
+                            Format PDF uniquement. Taille maximale : 10 MB
+                        </div>
+                        
+                        <!-- Preview Zone -->
+                        <div id="filePreview" class="mt-2" style="display: none;">
+                            <div class="alert alert-info">
+                                <i class="fas fa-file-pdf"></i> 
+                                <strong>Fichier sélectionné :</strong> <span id="fileName"></span>
+                                (<span id="fileSize"></span>)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Informations Blockchain -->
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Important - Processus NFT</h6>
+                        <p class="mb-2">Lors de la soumission du formulaire :</p>
+                        <ol class="mb-0">
+                            <li>Le PDF sera uploadé sur IPFS (stockage décentralisé)</li>
+                            <li>Les métadonnées NFT seront créées</li>
+                            <li>Un NFT unique sera créé sur la blockchain Polygon</li>
+                            <li>Le NFT sera automatiquement envoyé au wallet de l'étudiant</li>
+                            <li>Une transaction MetaMask s'ouvrira pour confirmer</li>
+                        </ol>
+                        <p class="mt-2 mb-0">
+                            <strong>⏱️ Durée estimée :</strong> 30-60 secondes
+                        </p>
+                    </div>
+                    
+                    <!-- Boutons -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                            <i class="fas fa-paper-plane"></i> Créer le NFT Diplôme
+                        </button>
+                        <a href="/" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Annuler
+                        </a>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+        
+        <!-- Carte Instructions -->
+        <div class="card mt-4 bg-light">
+            <div class="card-body">
+                <h6><i class="fas fa-lightbulb text-warning"></i> Conseils</h6>
+                <ul class="mb-0 small">
+                    <li>Vérifiez que MetaMask est connecté au réseau <strong>Polygon Amoy</strong></li>
+                    <li>Assurez-vous d'avoir des <strong>MATIC de test</strong> pour payer les frais de gas</li>
+                    <li>L'adresse wallet doit être valide (format: 0x...)</li>
+                    <li>Le PDF doit être de bonne qualité et lisible</li>
+                    <li>La transaction blockchain peut prendre 10-30 secondes</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Prévisualisation du fichier
+    document.getElementById('diplome_pdf').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const preview = document.getElementById('filePreview');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            
+            fileName.textContent = file.name;
+            fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+            preview.style.display = 'block';
+            
+            // Vérifier la taille
+            if (file.size > 10 * 1024 * 1024) {
+                showAlert('danger', 'Le fichier est trop volumineux (max 10 MB)');
+                e.target.value = '';
+                preview.style.display = 'none';
+            }
+        }
+    });
+    
+    // Utiliser l'adresse MetaMask connectée
+    function useConnectedWallet() {
+        if (typeof userAccount !== 'undefined' && userAccount) {
+            document.getElementById('wallet_address').value = userAccount;
+            showAlert('success', 'Adresse MetaMask ajoutée !');
+        } else {
+            showAlert('warning', 'Veuillez d\'abord connecter MetaMask');
+        }
+    }
+    
+    // Soumission du formulaire
+    document.getElementById('diplomaForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Vérifier MetaMask
+        if (typeof window.ethereum === 'undefined') {
+            showAlert('danger', 'MetaMask n\'est pas installé. Veuillez installer MetaMask pour continuer.');
+            return;
+        }
+        
+        // Vérifier le réseau
+        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        if (chainId !== '0x13882') {
+            showAlert('warning', 'Veuillez passer au réseau Polygon Amoy dans MetaMask');
+            return;
+        }
+        
+        // Désactiver le bouton
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement en cours...';
+        
+        // Afficher le loading
+        showLoading();
+        
+        // Préparer les données
+        const formData = new FormData(this);
+        
+        try {
+            // Envoyer la requête
+            const response = await fetch('/ajouter', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            hideLoading();
+            
+            if (data.success) {
+                // Succès !
+                showAlert('success', `
+                    <h5><i class="fas fa-check-circle"></i> NFT Créé avec Succès!</h5>
+                    <p><strong>Token ID:</strong> ${data.data.nft_token_id}</p>
+                    <p><strong>Transaction:</strong> 
+                        <a href="https://amoy.polygonscan.com/tx/${data.data.tx_hash}" target="_blank" class="text-white">
+                            ${data.data.tx_hash.substring(0, 10)}...
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </p>
+                    <p><strong>IPFS:</strong> 
+                        <a href="${data.data.ipfs_url}" target="_blank" class="text-white">
+                            Voir le diplôme <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </p>
+                    <hr>
+                    <p class="mb-0">Le NFT a été envoyé au wallet: <code class="text-white">${data.data.wallet_address}</code></p>
+                `);
+                
+                // Réinitialiser le formulaire
+                this.reset();
+                document.getElementById('filePreview').style.display = 'none';
+                
+                // Redirection après 5 secondes
+                setTimeout(() => {
+                    window.location.href = '/liste';
+                }, 5000);
+                
+            } else {
+                // Erreur
+                showAlert('danger', `
+                    <strong>Erreur:</strong> ${data.error || 'Une erreur est survenue'}
+                `);
+            }
+            
+        } catch (error) {
+            hideLoading();
+            console.error('Erreur:', error);
+            showAlert('danger', `
+                <strong>Erreur de connexion:</strong> ${error.message}
+            `);
+        } finally {
+            // Réactiver le bouton
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    });
+    
+    // Fonction pour afficher les alertes
+    function showAlert(type, message) {
+        const alertZone = document.getElementById('alertZone');
+        alertZone.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        // Scroll vers l'alerte
+        alertZone.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,78 @@
+name: 🐳 Build and Push Docker Image
+# Déclencheurs
+on:
+  push:
+    branches: 
+      - main
+      - master
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches: 
+      - main
+      - master
+  workflow_dispatch:  # Permet de lancer manuellement
+
+# Variables globales
+env:
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  IMAGE_NAME: flask-nft-diplomas
+  REGISTRY: docker.io
+
+jobs:
+  build-and-push:
+    name: 🏗️ Build & Push Docker Image
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Étape 1: Récupérer le code
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    # Étape 2: Configurer Docker Buildx (pour build multi-architecture)
+    - name: 🔧 Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    # Étape 3: Se connecter à Docker Hub
+    - name: 🔑 Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    # Étape 4: Extraire les métadonnées (tags, labels)
+    - name: 🏷️ Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=sha,prefix={{branch}}-
+    
+    # Étape 5: Builder et pusher l'image Docker
+    - name: 🏗️ Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:buildcache
+        cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+        platforms: linux/amd64
+    
+    # Étape 6: Afficher le résultat
+    - name: ✅ Image pushed successfully
+      run: |
+        echo "🎉 Docker image pushed successfully!"
+        echo "📦 Image: ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}"
+        echo "🏷️ Tags: ${{ steps.meta.outputs.tags }}"
+        echo ""
+        echo "Pour utiliser cette image:"
+        echo "docker pull ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest"

@@ -1,0 +1,58 @@
+﻿{% extends "base.html" %}
+{% block title %}Liste des étudiants{% endblock %}
+{% block content %}
+<h1 class="text-center mb-5 display-4 fw-bold text-primary">Liste des étudiants</h1>
+
+{% if students %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle shadow-lg">
+        <thead class="table-dark">
+            <tr>
+                <th>Adresse</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Date de naissance</th>
+                <th class="text-center">Moyenne</th>
+                <th class="text-center">Mention</th>
+                <th class="text-center">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in students %}
+            <tr class="table-row-hover">
+                <td><code class="text-muted">{{ s.adresse[:10] }}...{{ s.adresse[-8:] }}</code></td>
+                <td class="fw-bold">{{ s.nom }}</td>
+                <td>{{ s.prenom }}</td>
+                <td>{{ s.dateNaissance }}</td>
+                <td class="text-center"><span class="badge bg-light text-dark fs-6">{{ s.moyenneGenerale }}</span></td>
+                <td class="text-center">
+                    {% if s.mention == "Excellent" %}
+                        <span class="badge bg-danger mention-badge">Excellent</span>
+                    {% elif s.mention == "Très Bien" %}
+                        <span class="badge bg-warning mention-badge">Très Bien</span>
+                    {% elif s.mention == "Bien" %}
+                        <span class="badge bg-success mention-badge">Bien</span>
+                    {% elif s.mention == "Assez Bien" %}
+                        <span class="badge bg-info mention-badge">Assez Bien</span>
+                    {% else %}
+                        <span class="badge bg-secondary mention-badge">Passable</span>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    <a href="/etudiant/{{ s.adresse }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye"></i> Voir
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-users fa-5x text-muted mb-4"></i>
+    <h3 class="text-muted">Aucun étudiant inscrit pour le moment</h3>
+    <a href="/ajouter" class="btn btn-primary btn-lg mt-3">Ajouter le premier !</a>
+</div>
+{% endif %}
+{% endblock %}

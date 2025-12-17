@@ -1,0 +1,45 @@
+﻿version: '3.8'
+
+services:
+  flask-nft-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flask-nft-diplomas
+    ports:
+      - "5000:5000"
+    environment:
+      # Flask Configuration
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+      - SECRET_KEY=${SECRET_KEY}
+      
+      # Blockchain Configuration
+      - RPC_URL=${RPC_URL}
+      - CONTRACT_ADDRESS=${CONTRACT_ADDRESS}
+      - OWNER_PRIVATE_KEY=${OWNER_PRIVATE_KEY}
+      - CHAIN_ID=${CHAIN_ID}
+      
+      # IPFS/Pinata Configuration
+      - PINATA_JWT=${PINATA_JWT}
+    
+    env_file:
+      - .env
+    
+    volumes:
+      # Persister les uploads
+      - ./uploads:/app/uploads
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  uploads:
+    driver: local

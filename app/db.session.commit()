@@ -1,0 +1,3 @@
+new_student = Student(nom=nom, note=note)
+db.session.add(new_student)
+db.session.commit()

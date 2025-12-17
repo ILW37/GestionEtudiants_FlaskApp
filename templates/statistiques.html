@@ -1,0 +1,76 @@
+﻿{% extends "base.html" %}
+{% block title %}Statistiques{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-3">
+        <div class="card bg-primary text-white stat-card">
+            <div>
+                <h1 class="display-4 fw-bold">{{ stats.total|default(0) }}</h1>
+                <p class="fs-5"><i class="fas fa-users"></i> Étudiants</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card bg-success text-white stat-card">
+            <div>
+                <h1 class="display-4 fw-bold">{{ "%.2f"|format(stats.moyenne_generale|default(0)) }}</h1>
+                <p class="fs-5"><i class="fas fa-chart-line"></i> Moyenne</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card bg-warning text-white stat-card">
+            <div>
+                <h1 class="display-4 fw-bold">{{ stats.reussis|default(0) }}</h1>
+                <p class="fs-5"><i class="fas fa-check-circle"></i> Réussis</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card bg-danger text-white stat-card">
+            <div>
+                <h1 class="display-4 fw-bold">{{ stats.excellents|default(0) }}</h1>
+                <p class="fs-5"><i class="fas fa-star"></i> Excellents</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow-lg">
+            <div class="card-header bg-gradient bg-dark text-white text-center">
+                <h2><i class="fas fa-medal"></i> Répartition par Mention</h2>
+            </div>
+            <div class="card-body bg-dark">
+                <canvas id="mentionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    new Chart(document.getElementById('mentionChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Passable', 'Assez Bien', 'Bien', 'Très Bien', 'Excellent'],
+            datasets: [{
+                data: [
+                    {{ stats.mentions.Passable|default(0) }},
+                    {{ stats.mentions.AssezBien|default(0) }},
+                    {{ stats.mentions.Bien|default(0) }},
+                    {{ stats.mentions.TresBien|default(0) }},
+                    {{ stats.mentions.Excellent|default(0) }}
+                ],
+                backgroundColor: ['#6c757d', '#17a2b8', '#28a745', '#ffc107', '#dc3545'],
+                borderWidth: 3,
+                borderColor: '#0d1117'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#c9d1d9', font: { size: 16 } } } }
+        }
+    });
+</script>
+{% endblock %}
